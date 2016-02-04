@@ -25,14 +25,15 @@ import org.codehaus.groovy.grails.plugins.support.aware.GrailsApplicationAware
 import org.codehaus.groovy.grails.web.pages.FastStringWriter
 import org.codehaus.groovy.grails.web.pages.GroovyPage
 
+import java.sql.Blob
+
 import static FormFieldsTemplateService.toPropertyNameFormat
 import static org.codehaus.groovy.grails.commons.GrailsClassUtils.getStaticPropertyValue
 
-import java.sql.Blob
 class FormFieldsTagLib implements GrailsApplicationAware {
 
 	static final namespace = 'f'
-    static final String STACK_PAGE_SCOPE_VARIABLE = 'f:with:stack'
+    static final String STACK_REQUEST_ATTRIBUTE = "grails.plugins.formfields.WITH_STACK"
 
 	FormFieldsTemplateService formFieldsTemplateService
 	GrailsApplication grailsApplication
@@ -60,10 +61,12 @@ class FormFieldsTagLib implements GrailsApplicationAware {
     }
 
     BeanAndPrefixStack getBeanStack() {
-        if (!pageScope.hasVariable(STACK_PAGE_SCOPE_VARIABLE)) {
-            pageScope.setVariable(STACK_PAGE_SCOPE_VARIABLE, new BeanAndPrefixStack())
+		def stack = request.getAttribute(STACK_REQUEST_ATTRIBUTE)
+		if (null == stack) {
+			stack = new BeanAndPrefixStack()
+			request.setAttribute(STACK_REQUEST_ATTRIBUTE, stack)
         }
-        pageScope.variables[STACK_PAGE_SCOPE_VARIABLE]
+		stack as BeanAndPrefixStack
     }
 
 	/**
